@@ -59,6 +59,12 @@
   padding: 2rem;
   box-shadow: var(--be-shadow);
 }
+/* Ensure [hidden] always wins over any display rules */
+.be-pane[hidden],
+.be-field[hidden],
+.be-notice[hidden],
+.be-summary__row[hidden] { display: none !important; }
+
 .be-pane__title { font-size: 1.25rem; margin: 0 0 1.5rem; }
 .be-pane__nav   { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; }
 

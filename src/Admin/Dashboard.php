@@ -157,12 +157,13 @@ class Dashboard {
         $allowed = [
             'timezone', 'slot_duration', 'max_bookings_per_slot', 'lead_time_hours',
             'max_advance_days', 'admin_email', 'email_from', 'business_hours',
+            'use_custom_slots', 'custom_slots',
         ];
 
         foreach ( $allowed as $key ) {
             if ( isset( $_POST[ $key ] ) ) {
                 $value = wp_unslash( $_POST[ $key ] );
-                if ( 'business_hours' === $key ) {
+                if ( 'business_hours' === $key || 'custom_slots' === $key ) {
                     // Already JSON-encoded from JS.
                     $value = sanitize_text_field( $value );
                 } else {

@@ -24,6 +24,7 @@ $token = sanitize_text_field( wp_unslash( $_GET['token'] ?? '' ) );
     <input type="date" id="be-rs-date" class="be-input" min="<?php echo esc_attr( gmdate( 'Y-m-d', strtotime( '+1 day' ) ) ); ?>">
   </div>
 
+
   <div class="be-field" id="be-rs-slot-wrap" hidden>
     <label class="be-label"><?php esc_html_e( 'Available Times', 'bookease' ); ?></label>
     <div class="be-slots" id="be-rs-slots"></div>
@@ -45,9 +46,10 @@ $token = sanitize_text_field( wp_unslash( $_GET['token'] ?? '' ) );
 wp_enqueue_style(  'bookease-frontend', BOOKEASE_ASSETS_URL . 'css/frontend.css', [], BOOKEASE_VERSION );
 wp_enqueue_script( 'bookease-frontend', BOOKEASE_ASSETS_URL . 'js/frontend.js', ['jquery'], BOOKEASE_VERSION, true );
 wp_localize_script( 'bookease-frontend', 'bookease', [
-    'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-    'nonce'   => wp_create_nonce( 'bookease_frontend' ),
-    'mode'    => 'reschedule',
+    'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+    'nonce'        => wp_create_nonce( 'bookease_frontend' ),
+    'slotDuration' => isset( $this->repo ) ? (int) $this->repo->get_setting( 'slot_duration', 60 ) : 60,
+    'mode'         => 'reschedule',
 ] );
 wp_footer();
 ?>

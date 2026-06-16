@@ -25,7 +25,7 @@ final class Plugin {
         $booking_svc = new Services\BookingService( $repository, $avail, $email );
 
         // Shortcode + frontend.
-        $frontend = new Frontend\BookingForm( $booking_svc, $avail );
+        $frontend = new Frontend\BookingForm( $booking_svc, $avail, $repository );
         $frontend->register();
 
         // REST API.

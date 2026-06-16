@@ -180,6 +180,79 @@
       $row.find('.be-hours-open, .be-hours-close').prop('disabled', !on);
     } );
 
+    // Custom slots UI management
+    const $useCustomCheck = $( '#be-use-custom-slots' );
+    const $customContainer = $( '#be-custom-slots-container' );
+    const $slotsList = $( '#be-custom-slots-list' );
+    const $slotsInput = $( '#be-custom-slots-input' );
+
+    $useCustomCheck.on( 'change', function() {
+      if ( $( this ).is(':checked') ) {
+        $customContainer.show();
+      } else {
+        $customContainer.hide();
+      }
+    } );
+
+    function parseCustomSlots() {
+      try {
+        return JSON.parse( $slotsInput.val() || '[]' );
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function renderCustomSlots() {
+      const slots = parseCustomSlots();
+      if ( slots.length === 0 ) {
+        $slotsList.html('<p class="be-text-muted" style="font-size:0.85rem;color:#6b7280;margin:0;">No custom slots defined. Click Add Custom Slot to create one.</p>');
+        return;
+      }
+
+      const rows = slots.map( (s, idx) => `
+        <div class="be-custom-slot-row" data-idx="${idx}" style="display:flex; align-items:center; gap:0.5rem; background:#f9fafb; padding:0.5rem; border-radius:6px; border:1px dashed #e5e7eb;">
+          <input type="time" class="be-input be-slot-start" value="${s.start}" style="width:130px; padding:0.35rem 0.5rem;">
+          <span style="color:#6b7280;">–</span>
+          <input type="time" class="be-input be-slot-end" value="${s.end}" style="width:130px; padding:0.35rem 0.5rem;">
+          <button type="button" class="button be-btn be-btn--danger be-remove-slot" style="padding:.35rem .5rem !important; min-height:unset !important; height:unset !important; border-radius:4px !important; line-height:1 !important;">✕</button>
+        </div>
+      ` ).join('');
+      $slotsList.html( rows );
+    }
+
+    // Add slot click
+    $( '#be-add-custom-slot' ).on( 'click', function() {
+      const slots = parseCustomSlots();
+      slots.push( { start: '09:00', end: '10:00' } );
+      $slotsInput.val( JSON.stringify( slots ) );
+      renderCustomSlots();
+    } );
+
+    // Remove slot click
+    $slotsList.on( 'click', '.be-remove-slot', function() {
+      const idx = $( this ).closest( '.be-custom-slot-row' ).data( 'idx' );
+      const slots = parseCustomSlots();
+      slots.splice( idx, 1 );
+      $slotsInput.val( JSON.stringify( slots ) );
+      renderCustomSlots();
+    } );
+
+    // Input changes -> update JSON
+    $slotsList.on( 'change', 'input', function() {
+      const slots = [];
+      $slotsList.find( '.be-custom-slot-row' ).each( function() {
+        const start = $( this ).find( '.be-slot-start' ).val();
+        const end = $( this ).find( '.be-slot-end' ).val();
+        slots.push( { start, end } );
+      } );
+      $slotsInput.val( JSON.stringify( slots ) );
+    } );
+
+    // Init custom slots list
+    if ( $slotsInput.length ) {
+      renderCustomSlots();
+    }
+
     $( '#be-save-settings' ).on( 'click', function () {
       const $btn = $( this ).prop('disabled', true).text( bookease_admin.i18n.loading );
       const msg  = $( '#be-settings-msg' );
@@ -201,6 +274,10 @@
         };
       } );
       payload.business_hours = JSON.stringify(hours);
+
+      // Custom slots settings.
+      payload.use_custom_slots = $useCustomCheck.is(':checked') ? '1' : '0';
+      payload.custom_slots = $slotsInput.val() || '[]';
 
       API.post( 'bookease_save_settings', payload, () => {
         msg.removeClass('be-notice--error').addClass('be-notice be-notice--success').text( bookease_admin.i18n.saved ).show();
@@ -254,8 +331,9 @@
       $( '#be-calendar-loading' ).show();
       $( '#be-calendar' ).hide();
 
+      const daysInMonth = new Date(year, month, 0).getDate();
       const start = `${year}-${String(month).padStart(2,'0')}-01`;
-      const end   = `${year}-${String(month).padStart(2,'0')}-31`;
+      const end   = `${year}-${String(month).padStart(2,'0')}-${String(daysInMonth).padStart(2,'0')}`;
 
       API.post( 'bookease_calendar_data', { start, end }, data => {
         $( '#be-calendar-loading' ).hide();
@@ -290,7 +368,7 @@
         const isToday = date === today ? ' be-cal-cell--today' : '';
         const dayEvts = eventsByDate[date] || [];
         const evtHtml = dayEvts.slice(0,3).map( e =>
-          `<div class="be-cal-event" style="background:${e.color}" title="${e.title}" data-id="${e.extendedProps.id}">${e.title}</div>`
+          `<div class="be-cal-event" style="background:${e.color}" title="${e.title}" data-id="${e.extendedProps.id}" data-status="${e.extendedProps.status}">${e.title}</div>`
         ).join('') + ( dayEvts.length > 3 ? `<div class="be-cal-event" style="background:#94a3b8">+${dayEvts.length-3} more</div>` : '' );
 
         html += `<div class="be-cal-cell${isToday}" data-date="${date}">
@@ -306,11 +384,18 @@
     $( '#be-calendar' ).on( 'click', '.be-cal-event', function(e) {
       e.stopPropagation();
       const id = +$( this ).data('id');
+      const status = $( this ).data('status');
       // Fetch fresh booking details if needed – for now show in popover.
       const $pop = $( '#be-event-popover' );
       $( '#be-popover-ref' ).text( $( this ).text() );
       $pop.css({ top: e.pageY - 80, left: Math.min(e.pageX, $(window).width() - 320) }).removeAttr('hidden');
       $pop.data('booking-id', id);
+
+      if ( status === 'pending' ) {
+        $( '#be-popover-approve, #be-popover-reject' ).show();
+      } else {
+        $( '#be-popover-approve, #be-popover-reject' ).hide();
+      }
     } );
 
     // Popover close.
@@ -355,6 +440,11 @@
           ${row('Status','<span class="be-badge be-badge--'+b.status+'">'+b.status+'</span>')}
           ${b.notes ? row('Notes', b.notes) : ''}
         </table>`);
+      if ( b.status === 'pending' ) {
+        $( '#be-view-modal [data-action="approved"], #be-view-modal [data-action="rejected"]' ).show();
+      } else {
+        $( '#be-view-modal [data-action="approved"], #be-view-modal [data-action="rejected"]' ).hide();
+      }
     } );
   }
 

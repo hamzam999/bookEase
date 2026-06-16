@@ -43,6 +43,7 @@ defined( 'ABSPATH' ) || exit;
                aria-required="true">
       </div>
 
+
       <div class="be-field" id="be-slot-field" hidden>
         <label class="be-label"><?php esc_html_e( 'Available Times', 'bookease' ); ?> <span class="be-req">*</span></label>
         <div class="be-slots" id="be-slots" role="group" aria-label="<?php esc_attr_e( 'Available time slots', 'bookease' ); ?>">
@@ -117,10 +118,15 @@ defined( 'ABSPATH' ) || exit;
       <div class="be-success-icon">✓</div>
       <h2 class="be-pane__title"><?php esc_html_e( 'Booking Submitted!', 'bookease' ); ?></h2>
       <p id="be-success-message"><?php esc_html_e( 'Thank you! Check your email for confirmation details.', 'bookease' ); ?></p>
-      <p class="be-booking-ref">
+      <p class="be-booking-ref" style="margin-bottom: 2rem;">
         <?php esc_html_e( 'Booking Reference:', 'bookease' ); ?>
         <strong id="be-success-ref"></strong>
       </p>
+      <div style="display: flex; justify-content: center;">
+        <button type="button" class="be-btn be-btn--primary" id="be-add-another-booking">
+          <?php esc_html_e( 'Add New Booking', 'bookease' ); ?>
+        </button>
+      </div>
     </div>
 
   </div><!-- .be-form-container -->

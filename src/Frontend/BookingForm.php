@@ -15,6 +15,7 @@ class BookingForm {
     public function __construct(
         private readonly BookingService     $booking_svc,
         private readonly AvailabilityService $availability,
+        private readonly \BookEase\Repositories\BookingRepository $repo,
     ) {}
 
     public function register(): void {
@@ -65,9 +66,10 @@ class BookingForm {
         );
 
         wp_localize_script( 'bookease-frontend', 'bookease', [
-            'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-            'nonce'   => wp_create_nonce( 'bookease_frontend' ),
-            'i18n'    => [
+            'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+            'nonce'        => wp_create_nonce( 'bookease_frontend' ),
+            'slotDuration' => (int) $this->repo->get_setting( 'slot_duration', 60 ),
+            'i18n'         => [
                 'selectDate'    => __( 'Select a date first', 'bookease' ),
                 'noSlots'       => __( 'No available slots for this date.', 'bookease' ),
                 'loading'       => __( 'Loading…', 'bookease' ),

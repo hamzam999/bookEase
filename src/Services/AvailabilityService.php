@@ -29,6 +29,41 @@ class AvailabilityService {
         $hours_json = $settings['business_hours'] ?? '{}';
         $biz_hours  = json_decode( $hours_json, true ) ?: [];
 
+        // Lead time: don't show past slots.
+        $lead_hours  = (int) ( $settings['lead_time_hours'] ?? 2 );
+        $earliest_ts = time() + ( $lead_hours * 3600 );
+
+        // Custom slots override.
+        $use_custom = ( $settings['use_custom_slots'] ?? '0' ) === '1';
+        if ( $use_custom ) {
+            $custom_slots_json = $settings['custom_slots'] ?? '[]';
+            $custom_slots      = json_decode( $custom_slots_json, true ) ?: [];
+            $slots = [];
+            foreach ( $custom_slots as $slot ) {
+                $start = sanitize_text_field( $slot['start'] ?? '' );
+                $end   = sanitize_text_field( $slot['end'] ?? '' );
+                if ( ! $start || ! $end ) {
+                    continue;
+                }
+
+                $start_formatted = date( 'H:i:s', strtotime( $start ) );
+                $end_formatted   = date( 'H:i:s', strtotime( $end ) );
+
+                $ts     = strtotime( "{$date} {$start_formatted}" );
+                $booked = $this->repo->count_in_slot( $date, $start_formatted, $end_formatted );
+                $remain = max( 0, $max_per - $booked );
+                $past   = ( $ts < $earliest_ts );
+
+                $slots[] = [
+                    'start'     => $start_formatted,
+                    'end'       => $end_formatted,
+                    'available' => $remain > 0 && ! $past,
+                    'remaining' => $remain,
+                ];
+            }
+            return apply_filters( 'bookease_available_slots', $slots, $date );
+        }
+
         // Day of week in lowercase English.
         $day_name = strtolower( gmdate( 'l', strtotime( $date ) ) );
         $day_cfg  = $biz_hours[ $day_name ] ?? [];
@@ -43,10 +78,6 @@ class AvailabilityService {
         $open_ts  = strtotime( "{$date} {$open}" );
         $close_ts = strtotime( "{$date} {$close}" );
         $step     = $duration * 60;
-
-        // Lead time: don't show past slots.
-        $lead_hours  = (int) ( $settings['lead_time_hours'] ?? 2 );
-        $earliest_ts = time() + ( $lead_hours * 3600 );
 
         $slots = [];
         for ( $ts = $open_ts; ( $ts + $step ) <= $close_ts; $ts += $step ) {

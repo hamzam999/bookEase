@@ -195,7 +195,7 @@
 /* Business Hours */
 .be-hours-row {
   display: grid;
-  grid-template-columns: 44px 110px 1fr auto 1fr;
+  grid-template-columns: 36px 80px 95px auto 95px;
   align-items: center;
   gap: .5rem;
   padding: .5rem 0;

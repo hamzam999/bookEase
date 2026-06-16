@@ -78,6 +78,40 @@ $days      = [ 'monday','tuesday','wednesday','thursday','friday','saturday','su
       </div>
     </div>
 
+    <!-- Custom Time Slots -->
+    <div class="be-card">
+      <h2 class="be-card__title" style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
+        <span class="dashicons dashicons-clock"></span>
+        <?php esc_html_e( 'Custom Time Slots', 'bookease' ); ?>
+      </h2>
+      <div class="be-field" style="margin-bottom: 1rem; flex-direction: row; align-items: center; gap: 0.75rem;">
+        <label class="be-toggle">
+          <input type="checkbox" id="be-use-custom-slots" <?php checked( ( $settings['use_custom_slots'] ?? '0' ) === '1' ); ?>>
+          <span class="be-toggle__slider"></span>
+        </label>
+        <span style="font-weight: 500; font-size: 0.875rem;">
+          <?php esc_html_e( 'Use Custom Slots', 'bookease' ); ?>
+        </span>
+      </div>
+
+      <div id="be-custom-slots-container" <?php echo ( ( $settings['use_custom_slots'] ?? '0' ) === '1' ) ? '' : 'style="display:none;"'; ?>>
+        <p class="be-text-muted" style="margin-bottom: 1rem; font-size: 0.8rem; line-height: 1.4;">
+          <?php esc_html_e( 'Define specific time slots below. These slots will be available on all active weekdays.', 'bookease' ); ?>
+        </p>
+        
+        <div id="be-custom-slots-list" style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom: 1.25rem;">
+          <!-- Managed via JS -->
+        </div>
+
+        <button type="button" class="button be-btn be-btn--secondary" id="be-add-custom-slot" style="width:100%; justify-content:center;">
+          + <?php esc_html_e( 'Add Custom Slot', 'bookease' ); ?>
+        </button>
+
+        <input type="hidden" id="be-custom-slots-input" class="be-setting" data-key="custom_slots" 
+               value="<?php echo esc_attr( $settings['custom_slots'] ?? '[]' ); ?>">
+      </div>
+    </div>
+
     <!-- Email -->
     <div class="be-card">
       <h2 class="be-card__title"><?php esc_html_e( 'Email', 'bookease' ); ?></h2>

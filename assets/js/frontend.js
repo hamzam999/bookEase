@@ -15,9 +15,9 @@
   };
 
   // ── Selectors ───────────────────────────────────────────────────────────────
-  const $ = jQuery;
   const form = {
     date:       () => $( '#be-date' ),
+    time:       () => $( '#be-time' ),
     slotField:  () => $( '#be-slot-field' ),
     slots:      () => $( '#be-slots' ),
     startTime:  () => $( '#be-start-time' ),
@@ -34,38 +34,43 @@
     notes:      () => $( '#be-notes' ),
   };
 
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+  function show( $el ) { $el.removeAttr( 'hidden' ); }
+  function hide( $el ) { $el.attr( 'hidden', '' ); }
+
   // ── Step navigation ──────────────────────────────────────────────────────────
   function goToStep( n ) {
     state.step = n;
-    $( '[id^="be-step-"]' ).hide();
+    hide( $( '[id^="be-step-"]' ) );
+
     if ( n === 'success' ) {
-      $( '#be-step-success' ).show();
+      show( $( '#be-step-success' ) );
       return;
     }
-    $( '#be-step-' + n ).show();
+    show( $( '#be-step-' + n ) );
 
     // Update step indicators
     $( '.be-step' ).each( function () {
       const s = +$( this ).data( 'step' );
       $( this ).removeClass( 'be-step--active be-step--done' );
-      if ( s < n )      $( this ).addClass( 'be-step--done' );
-      if ( s === n )    $( this ).addClass( 'be-step--active' );
+      if ( s < n )   $( this ).addClass( 'be-step--done' );
+      if ( s === n ) $( this ).addClass( 'be-step--active' );
     } );
   }
 
   // ── Date change → load slots ─────────────────────────────────────────────────
   form.date().on( 'change', function () {
     const date = $( this ).val();
-    state.date = date;
+    state.date      = date;
     state.startTime = '';
     state.endTime   = '';
     form.startTime().val( '' );
     form.endTime().val( '' );
     form.next1().prop( 'disabled', true );
 
-    if ( ! date ) { form.slotField().hide(); return; }
+    if ( ! date ) { hide( form.slotField() ); return; }
 
-    form.slotField().show();
+    show( form.slotField() );
     form.slots().html( '<p class="be-slots__loading">' + bookease.i18n.loading + '</p>' );
 
     $.post( bookease.ajaxUrl, {
@@ -83,9 +88,9 @@
 
   function renderSlots( slots ) {
     const html = slots.map( s => {
-      const label   = s.start.substr(0,5) + ' – ' + s.end.substr(0,5);
-      const remain  = s.remaining > 1 ? `<span class="be-slot__remain">${s.remaining} left</span>` : '';
-      const avail   = s.available ? '' : ' be-slot--unavailable';
+      const label    = s.start.substr(0,5) + ' – ' + s.end.substr(0,5);
+      const remain   = s.remaining > 1 ? `<span class="be-slot__remain">${s.remaining} left</span>` : '';
+      const avail    = s.available ? '' : ' be-slot--unavailable';
       const disabled = s.available ? '' : ' disabled';
       return `<button type="button" class="be-slot${avail}" data-start="${s.start}" data-end="${s.end}"${disabled}>
         ${label}${remain}
@@ -103,6 +108,48 @@
     form.startTime().val( state.startTime );
     form.endTime().val( state.endTime );
     form.next1().prop( 'disabled', false );
+  } );
+
+  // ── Time input change ────────────────────────────────────────────────────────
+  function resetForm() {
+    state.step      = 1;
+    state.date      = '';
+    state.startTime = '';
+    state.endTime   = '';
+    state.name      = '';
+    state.email     = '';
+    state.phone     = '';
+    state.notes     = '';
+
+    form.date().val( '' );
+    form.startTime().val( '' );
+    form.endTime().val( '' );
+    form.name().val( '' );
+    form.email().val( '' );
+    form.phone().val( '' );
+    form.notes().val( '' );
+
+    hide( form.slotField() );
+    form.slots().html( '' );
+    form.next1().prop( 'disabled', true );
+
+    hide( form.error() );
+    form.error().text( '' );
+
+    $( '#be-sum-date' ).text( '' );
+    $( '#be-sum-time' ).text( '' );
+    $( '#be-sum-name' ).text( '' );
+    $( '#be-sum-email' ).text( '' );
+    $( '#be-sum-phone' ).text( '' );
+    $( '#be-sum-notes' ).text( '' );
+    show( $( '#be-sum-phone-row' ) );
+    show( $( '#be-sum-notes-row' ) );
+
+    goToStep(1);
+  }
+
+  $( document ).on( 'click', '#be-add-another-booking', function() {
+    resetForm();
   } );
 
   // ── Step 1 → 2 ──────────────────────────────────────────────────────────────
@@ -126,13 +173,13 @@
     state.phone = form.phone().val().trim();
     state.notes = form.notes().val().trim();
 
-    // Populate summary.
+    // Populate summary
     $( '#be-sum-date' ).text( state.date );
     $( '#be-sum-time' ).text( state.startTime.substr(0,5) + ' – ' + state.endTime.substr(0,5) );
     $( '#be-sum-name' ).text( state.name );
     $( '#be-sum-email' ).text( state.email );
-    if ( state.phone ) { $( '#be-sum-phone' ).text( state.phone ); } else { $( '#be-sum-phone-row' ).hide(); }
-    if ( state.notes ) { $( '#be-sum-notes' ).text( state.notes ); } else { $( '#be-sum-notes-row' ).hide(); }
+    if ( state.phone ) { $( '#be-sum-phone' ).text( state.phone ); } else { hide( $( '#be-sum-phone-row' ) ); }
+    if ( state.notes ) { $( '#be-sum-notes' ).text( state.notes ); } else { hide( $( '#be-sum-notes-row' ) ); }
 
     goToStep(3);
   } );
@@ -143,7 +190,7 @@
   form.submit().on( 'click', function () {
     const $btn = $( this );
     $btn.prop( 'disabled', true ).text( bookease.i18n.submitting );
-    form.error().hide();
+    hide( form.error() );
 
     $.post( bookease.ajaxUrl, {
       action:     'bookease_submit',
@@ -159,7 +206,8 @@
       $btn.prop( 'disabled', false ).text( 'Confirm Booking' );
 
       if ( ! res.success ) {
-        form.error().text( res.data.message || bookease.i18n.error ).show();
+        form.error().text( res.data.message || bookease.i18n.error );
+        show( form.error() );
         return;
       }
 
@@ -168,7 +216,8 @@
       goToStep( 'success' );
     } ).fail( function () {
       $btn.prop( 'disabled', false ).text( 'Confirm Booking' );
-      form.error().text( bookease.i18n.error ).show();
+      form.error().text( bookease.i18n.error );
+      show( form.error() );
     } );
   } );
 
@@ -181,8 +230,11 @@
     $( '#be-rs-date' ).on( 'change', function () {
       const date = $( this ).val();
       $( '#be-rs-slots' ).html( '<p class="be-slots__loading">' + bookease.i18n.loading + '</p>' );
-      $( '#be-rs-slot-wrap' ).show();
+      $( '#be-rs-slot-wrap' ).removeAttr( 'hidden' );
       $( '#be-rs-submit' ).prop( 'disabled', true );
+      $( '#be-rs-start' ).val( '' );
+      $( '#be-rs-end' ).val( '' );
+
 
       $.post( bookease.ajaxUrl, { action: 'bookease_get_slots', nonce: bookease.nonce, date }, function ( res ) {
         if ( ! res.success || ! res.data.slots.length ) {
@@ -201,25 +253,28 @@
     $( document ).on( 'click', '#be-rs-slots .be-slot:not([disabled])', function () {
       $( '#be-rs-slots .be-slot' ).removeClass( 'be-slot--selected' );
       $( this ).addClass( 'be-slot--selected' );
-      $( '#be-rs-start' ).val( $( this ).data( 'start' ) );
+      const start = $( this ).data( 'start' );
+      $( '#be-rs-start' ).val( start );
       $( '#be-rs-end' ).val(   $( this ).data( 'end'   ) );
       $( '#be-rs-submit' ).prop( 'disabled', false );
     } );
 
+
+
     $( '#be-rs-submit' ).on( 'click', function () {
       const $btn = $( this ).prop( 'disabled', true );
       $.post( bookease.ajaxUrl, {
-        action:     'bookease_reschedule',
-        nonce:      bookease.nonce,
-        token:      $( '#be-rs-token' ).val(),
-        new_date:   $( '#be-rs-date' ).val(),
-        new_start:  $( '#be-rs-start' ).val(),
-        new_end:    $( '#be-rs-end' ).val(),
+        action:    'bookease_reschedule',
+        nonce:     bookease.nonce,
+        token:     $( '#be-rs-token' ).val(),
+        new_date:  $( '#be-rs-date' ).val(),
+        new_start: $( '#be-rs-start' ).val(),
+        new_end:   $( '#be-rs-end' ).val(),
       }, function ( res ) {
         if ( res.success ) {
-          $( '#be-rs-success' ).text( res.data.message || 'Rescheduled successfully.' ).show();
+          $( '#be-rs-success' ).text( res.data.message || 'Rescheduled successfully.' ).removeAttr( 'hidden' );
         } else {
-          $( '#be-rs-error' ).text( res.data.message || 'Error. Try again.' ).show();
+          $( '#be-rs-error' ).text( res.data.message || 'Error. Try again.' ).removeAttr( 'hidden' );
           $btn.prop( 'disabled', false );
         }
       } );
