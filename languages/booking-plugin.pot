@@ -1,0 +1,396 @@
+# Copyright (C) 2025 BookEase
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: BookEase 1.0.0\n"
+"Report-Msgid-Bugs-To: https://example.com/support\n"
+"POT-Creation-Date: 2025-01-01 00:00:00+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2025-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"X-Generator: BookEase 1.0.0\n"
+"X-Domain: booking-plugin\n"
+
+#: booking-plugin.php
+msgid "BookEase requires PHP 8.0 or higher."
+msgstr ""
+
+msgid "BookEase requires WordPress 6.0 or higher."
+msgstr ""
+
+#: src/Admin/Dashboard.php
+#: templates/admin/bookings.php
+msgid "All Bookings"
+msgstr ""
+
+msgid "Booking Calendar"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Blocked Dates"
+msgstr ""
+
+msgid "BookEase"
+msgstr ""
+
+msgid "Add New Booking"
+msgstr ""
+
+msgid "Export CSV"
+msgstr ""
+
+msgid "Search bookings..."
+msgstr ""
+
+msgid "All Statuses"
+msgstr ""
+
+msgid "Pending"
+msgstr ""
+
+msgid "Approved"
+msgstr ""
+
+msgid "Rejected"
+msgstr ""
+
+msgid "Cancelled"
+msgstr ""
+
+msgid "Filter"
+msgstr ""
+
+msgid "ID"
+msgstr ""
+
+msgid "Reference"
+msgstr ""
+
+msgid "Customer"
+msgstr ""
+
+msgid "Date & Time"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Created"
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
+msgid "No bookings found."
+msgstr ""
+
+msgid "View"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Approve"
+msgstr ""
+
+msgid "Reject"
+msgstr ""
+
+msgid "Are you sure you want to delete this booking?"
+msgstr ""
+
+msgid "Booking Details"
+msgstr ""
+
+msgid "Edit Booking"
+msgstr ""
+
+msgid "New Booking"
+msgstr ""
+
+msgid "Customer Name"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Phone"
+msgstr ""
+
+msgid "Date"
+msgstr ""
+
+msgid "Time Slot"
+msgstr ""
+
+msgid "Notes"
+msgstr ""
+
+msgid "Save Booking"
+msgstr ""
+
+msgid "Update Booking"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Previous"
+msgstr ""
+
+msgid "Next"
+msgstr ""
+
+msgid "Monthly"
+msgstr ""
+
+msgid "Weekly"
+msgstr ""
+
+msgid "Daily"
+msgstr ""
+
+msgid "Today"
+msgstr ""
+
+msgid "No events"
+msgstr ""
+
+#: templates/admin/settings.php
+msgid "General Settings"
+msgstr ""
+
+msgid "Timezone"
+msgstr ""
+
+msgid "Slot Duration (minutes)"
+msgstr ""
+
+msgid "Max Bookings Per Slot"
+msgstr ""
+
+msgid "Lead Time (hours)"
+msgstr ""
+
+msgid "Max Advance Booking (days)"
+msgstr ""
+
+msgid "Business Hours"
+msgstr ""
+
+msgid "Day"
+msgstr ""
+
+msgid "Open"
+msgstr ""
+
+msgid "Open Time"
+msgstr ""
+
+msgid "Close Time"
+msgstr ""
+
+msgid "Monday"
+msgstr ""
+
+msgid "Tuesday"
+msgstr ""
+
+msgid "Wednesday"
+msgstr ""
+
+msgid "Thursday"
+msgstr ""
+
+msgid "Friday"
+msgstr ""
+
+msgid "Saturday"
+msgstr ""
+
+msgid "Sunday"
+msgstr ""
+
+msgid "Email Settings"
+msgstr ""
+
+msgid "Admin Email"
+msgstr ""
+
+msgid "From Name"
+msgstr ""
+
+msgid "From Email"
+msgstr ""
+
+msgid "Save Settings"
+msgstr ""
+
+msgid "Settings saved."
+msgstr ""
+
+#: templates/admin/blocked-dates.php
+msgid "Block a Date"
+msgstr ""
+
+msgid "Reason (optional)"
+msgstr ""
+
+msgid "Block Date"
+msgstr ""
+
+msgid "Blocked Dates List"
+msgstr ""
+
+msgid "Reason"
+msgstr ""
+
+msgid "Remove"
+msgstr ""
+
+msgid "No blocked dates set."
+msgstr ""
+
+#: templates/frontend/booking-form.php
+msgid "Book an Appointment"
+msgstr ""
+
+msgid "Date & Time"
+msgstr ""
+
+msgid "Your Details"
+msgstr ""
+
+msgid "Confirm"
+msgstr ""
+
+msgid "Select a date to see available slots"
+msgstr ""
+
+msgid "Select a time slot"
+msgstr ""
+
+msgid "Available"
+msgstr ""
+
+msgid "No slots available for this date."
+msgstr ""
+
+msgid "Your Name"
+msgstr ""
+
+msgid "Your Email"
+msgstr ""
+
+msgid "Your Phone"
+msgstr ""
+
+msgid "Additional Notes"
+msgstr ""
+
+msgid "Back"
+msgstr ""
+
+msgid "Continue"
+msgstr ""
+
+msgid "Booking Summary"
+msgstr ""
+
+msgid "Confirm Booking"
+msgstr ""
+
+msgid "Booking Confirmed!"
+msgstr ""
+
+msgid "Your booking reference is:"
+msgstr ""
+
+msgid "A confirmation email has been sent to you."
+msgstr ""
+
+msgid "Make Another Booking"
+msgstr ""
+
+#: templates/frontend/reschedule.php
+msgid "Reschedule Your Booking"
+msgstr ""
+
+msgid "Current Booking"
+msgstr ""
+
+msgid "New Date & Time"
+msgstr ""
+
+msgid "Confirm Reschedule"
+msgstr ""
+
+msgid "Your booking has been rescheduled successfully."
+msgstr ""
+
+msgid "This reschedule link is invalid or has expired."
+msgstr ""
+
+#: src/Frontend/BookingForm.php
+msgid "Your booking has been cancelled."
+msgstr ""
+
+msgid "This cancellation link is invalid or has already been used."
+msgstr ""
+
+#: src/Services/EmailService.php
+msgid "Booking Confirmation – %s"
+msgstr ""
+
+msgid "New Booking Received – %s"
+msgstr ""
+
+msgid "Your Booking Has Been Approved – %s"
+msgstr ""
+
+msgid "Your Booking Has Been Cancelled – %s"
+msgstr ""
+
+msgid "Your Booking Has Been Rescheduled – %s"
+msgstr ""
+
+msgid "Dear %s,"
+msgstr ""
+
+msgid "Thank you for your booking. Here are your details:"
+msgstr ""
+
+msgid "Booking Reference"
+msgstr ""
+
+msgid "If you need to cancel your booking, click the link below:"
+msgstr ""
+
+msgid "Cancel My Booking"
+msgstr ""
+
+msgid "If you need to reschedule, click the link below:"
+msgstr ""
+
+msgid "Reschedule My Booking"
+msgstr ""
+
+msgid "A new booking has been received."
+msgstr ""
+
+msgid "Your booking has been approved."
+msgstr ""
+
+msgid "Your booking has been cancelled. We hope to see you again soon."
+msgstr ""
+
+msgid "Your booking has been rescheduled. Your new details are below:"
+msgstr ""
