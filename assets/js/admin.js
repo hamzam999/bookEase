@@ -40,11 +40,12 @@
       const dateFrom = $( '#be-date-from' ).val();
       const dateTo   = $( '#be-date-to' ).val();
       const status   = $( '#be-status-filter' ).val();
+      const sortBy   = $( '#be-sort-by' ).val() || 'latest_booking';
       const perPage  = getPerPage();
 
       $( '#be-bookings-body' ).html( '<tr class="be-loading-row"><td colspan="7">' + bookease_admin.i18n.loading + '</td></tr>' );
 
-      API.post( 'bookease_list_bookings', { search, date_from: dateFrom, date_to: dateTo, status, page, per_page: perPage }, data => {
+      API.post( 'bookease_list_bookings', { search, date_from: dateFrom, date_to: dateTo, status, page, per_page: perPage, sort_by: sortBy }, data => {
         renderTable( data.bookings, perPage );
         totalPages = data.total_pages;
         renderPagination( page, totalPages );
@@ -100,6 +101,19 @@
     // Filter.
     $( '#be-apply-filters' ).on( 'click', () => { page = 1; load(); } );
     $( '#be-search' ).on( 'keypress', e => { if ( e.which===13 ) { page=1; load(); } } );
+    $( '#be-sort-by' ).on( 'change', () => { page = 1; load(); } );
+
+    $( '#be-clear-filters' ).on( 'click', () => {
+      $( '#be-search' ).val('');
+      $( '#be-date-from' ).val('');
+      $( '#be-date-to' ).val('');
+      $( '#be-status-filter' ).val('');
+      $( '#be-sort-by' ).val('latest_booking');
+      $( '#be-per-page' ).val('10');
+      $( '#be-per-page-custom' ).val('').hide();
+      page = 1;
+      load();
+    } );
 
     // Per-page change handlers.
     $( '#be-per-page' ).on( 'change', function() {

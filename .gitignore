@@ -1,2 +1,8 @@
-/tests
+# Ignore .gitignore file itself
+.gitignore
+
+# Ignore tests directory
+/test*
+
+# Ignore test cases markdown
 Test Cases.md

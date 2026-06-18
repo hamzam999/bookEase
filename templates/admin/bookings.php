@@ -20,29 +20,74 @@
   </div>
 
   <!-- Filters -->
-  <div class="be-filters">
-    <input type="text" id="be-search" class="be-input"
-      placeholder="<?php esc_attr_e('Search name, email, ref…', 'bookease'); ?>">
-    <input type="date" id="be-date-from" class="be-input" placeholder="<?php esc_attr_e('From date', 'bookease'); ?>">
-    <input type="date" id="be-date-to" class="be-input" placeholder="<?php esc_attr_e('To date', 'bookease'); ?>">
-    <select id="be-status-filter" class="be-input">
-      <option value=""><?php esc_html_e('All statuses', 'bookease'); ?></option>
-      <option value="pending"><?php esc_html_e('Pending', 'bookease'); ?></option>
-      <option value="approved"><?php esc_html_e('Approved', 'bookease'); ?></option>
-      <option value="rejected"><?php esc_html_e('Rejected', 'bookease'); ?></option>
-      <option value="cancelled"><?php esc_html_e('Cancelled', 'bookease'); ?></option>
-    </select>
-    <button class="button be-btn" id="be-apply-filters"><?php esc_html_e('Filter', 'bookease'); ?></button>
+  <div class="be-filters-card"
+    style="background: #fff; padding: 1.25rem; border-radius: 6px; border: 1px solid #e5e7eb; margin-bottom: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+    <div
+      style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: flex-end;">
 
-    <div class="be-per-page-wrap" style="display: inline-flex; align-items: center; gap: 0.5rem; margin-left: auto;">
-      <label for="be-per-page" style="font-size: 0.875rem; color: #4b5563; font-weight: 500;"><?php esc_html_e('Rows:', 'bookease'); ?></label>
-      <select id="be-per-page" class="be-input" style="width: auto; padding-right: 1.5rem;">
-        <option value="10" selected>10</option>
-        <option value="20">20</option>
-        <option value="30">30</option>
-        <option value="custom"><?php esc_html_e('Custom…', 'bookease'); ?></option>
-      </select>
-      <input type="number" id="be-per-page-custom" class="be-input" min="1" placeholder="<?php esc_attr_e('Qty', 'bookease'); ?>" style="width: 70px; display: none;">
+      <div class="be-filter-group" style="display: flex; flex-direction: column; gap: 0.375rem;">
+        <label for="be-search"
+          style="font-size: 0.875rem; font-weight: 600; color: #374151;"><?php esc_html_e('Search', 'bookease'); ?></label>
+        <input type="text" id="be-search" class="be-input"
+          placeholder="<?php esc_attr_e('Name, email, ref…', 'bookease'); ?>">
+      </div>
+
+      <div class="be-filter-group" style="display: flex; flex-direction: column; gap: 0.375rem;">
+        <label for="be-date-from"
+          style="font-size: 0.875rem; font-weight: 600; color: #374151;"><?php esc_html_e('From Date', 'bookease'); ?></label>
+        <input type="date" id="be-date-from" class="be-input">
+      </div>
+
+      <div class="be-filter-group" style="display: flex; flex-direction: column; gap: 0.375rem;">
+        <label for="be-date-to"
+          style="font-size: 0.875rem; font-weight: 600; color: #374151;"><?php esc_html_e('To Date', 'bookease'); ?></label>
+        <input type="date" id="be-date-to" class="be-input">
+      </div>
+
+      <div class="be-filter-group" style="display: flex; flex-direction: column; gap: 0.375rem;">
+        <label for="be-status-filter"
+          style="font-size: 0.875rem; font-weight: 600; color: #374151;"><?php esc_html_e('Status', 'bookease'); ?></label>
+        <select id="be-status-filter" class="be-input">
+          <option value=""><?php esc_html_e('All statuses', 'bookease'); ?></option>
+          <option value="pending"><?php esc_html_e('Pending', 'bookease'); ?></option>
+          <option value="approved"><?php esc_html_e('Approved', 'bookease'); ?></option>
+          <option value="rejected"><?php esc_html_e('Rejected', 'bookease'); ?></option>
+          <option value="cancelled"><?php esc_html_e('Cancelled', 'bookease'); ?></option>
+        </select>
+      </div>
+
+      <div class="be-filter-group" style="display: flex; flex-direction: column; gap: 0.375rem;">
+        <label for="be-sort-by"
+          style="font-size: 0.875rem; font-weight: 600; color: #374151;"><?php esc_html_e('Sort By', 'bookease'); ?></label>
+        <select id="be-sort-by" class="be-input">
+          <option value="latest_booking" selected><?php esc_html_e('Latest Bookings', 'bookease'); ?></option>
+          <option value="date_time_desc"><?php esc_html_e('Date & Time (Newest First)', 'bookease'); ?></option>
+          <option value="date_time_asc"><?php esc_html_e('Date & Time (Oldest First)', 'bookease'); ?></option>
+        </select>
+      </div>
+
+    </div>
+
+    <div
+      style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f3f4f6;">
+
+      <div class="be-per-page-wrap" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+        <label for="be-per-page"
+          style="font-size: 0.875rem; color: #4b5563; font-weight: 500;"><?php esc_html_e('Rows:', 'bookease'); ?></label>
+        <select id="be-per-page" class="be-input" style="width: auto; padding-right: 1.5rem;">
+          <option value="10" selected>10</option>
+          <option value="20">20</option>
+          <option value="30">30</option>
+          <option value="custom"><?php esc_html_e('Custom…', 'bookease'); ?></option>
+        </select>
+        <input type="number" id="be-per-page-custom" class="be-input" min="1"
+          placeholder="<?php esc_attr_e('Qty', 'bookease'); ?>" style="width: 70px; display: none;">
+      </div>
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="button be-btn" id="be-apply-filters"><?php esc_html_e('Filter', 'bookease'); ?></button>
+        <button class="button be-btn" id="be-clear-filters"
+          style="background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; box-shadow: none;"><?php esc_html_e('Clear Filters', 'bookease'); ?></button>
+      </div>
     </div>
   </div>
 

@@ -184,9 +184,14 @@ class BookingRepository {
 
         $where_sql = implode( ' AND ', $where );
 
-        $allowed_orderby = [ 'id', 'booking_ref', 'customer_name', 'service_date', 'status', 'created_at' ];
+        $allowed_orderby = [ 'id', 'booking_ref', 'customer_name', 'service_date', 'status', 'created_at', 'service_date_time' ];
         $orderby = in_array( $args['orderby'], $allowed_orderby, true ) ? $args['orderby'] : 'created_at';
         $order   = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
+
+        if ( 'service_date_time' === $orderby ) {
+            $orderby = "service_date {$order}, start_time {$order}";
+            $order   = '';
+        }
 
         $offset  = ( max( 1, (int) $args['page'] ) - 1 ) * (int) $args['per_page'];
 

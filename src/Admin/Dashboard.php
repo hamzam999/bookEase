@@ -278,6 +278,19 @@ class Dashboard {
     public function ajax_list_bookings(): void {
         $this->verify_admin_nonce();
         $per_page = isset( $_POST['per_page'] ) ? max( 1, (int) $_POST['per_page'] ) : 10;
+        
+        $sort_by = sanitize_text_field( wp_unslash( $_POST['sort_by'] ?? '' ) );
+        $orderby = 'created_at';
+        $order   = 'DESC';
+
+        if ( 'date_time_asc' === $sort_by ) {
+            $orderby = 'service_date_time';
+            $order   = 'ASC';
+        } elseif ( 'date_time_desc' === $sort_by ) {
+            $orderby = 'service_date_time';
+            $order   = 'DESC';
+        }
+
         $result = $this->repo->list( [
             'search'    => sanitize_text_field( wp_unslash( $_POST['search']    ?? '' ) ),
             'status'    => sanitize_text_field( wp_unslash( $_POST['status']    ?? '' ) ),
@@ -285,6 +298,8 @@ class Dashboard {
             'date_to'   => sanitize_text_field( wp_unslash( $_POST['date_to']   ?? '' ) ),
             'per_page'  => $per_page,
             'page'      => max( 1, (int) ( $_POST['page'] ?? 1 ) ),
+            'orderby'   => $orderby,
+            'order'     => $order,
         ] );
         wp_send_json_success( [
             'bookings'    => array_map( fn( $b ) => $b->to_array(), $result['items'] ),
