@@ -6,3 +6,4 @@
 
 # Ignore test cases markdown
 Test Cases.md
+*.zip

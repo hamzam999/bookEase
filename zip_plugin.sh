@@ -11,7 +11,7 @@ fi
 # Go to the root directory
 cd "$REPO_ROOT" || exit 1
 
-ZIP_NAME="booking-plugin.zip"
+ZIP_NAME=$(date +"booking-plugin_%Y%m%d_%H%M%S.zip")
 echo "Zipping plugin files into $ZIP_NAME (respecting .gitignore)..."
 
 # Ensure zip command is installed
