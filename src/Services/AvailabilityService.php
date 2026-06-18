@@ -25,6 +25,9 @@ class AvailabilityService {
 
         $settings   = $this->repo->get_all_settings();
         $duration   = (int) ( $settings['slot_duration']         ?? 60 );
+        if ( $duration <= 0 ) {
+            return [];
+        }
         $max_per    = (int) ( $settings['max_bookings_per_slot'] ?? 1  );
         $hours_json = $settings['business_hours'] ?? '{}';
         $biz_hours  = json_decode( $hours_json, true ) ?: [];

@@ -27,6 +27,8 @@ class BookingForm {
         add_action( 'wp_ajax_nopriv_bookease_get_slots', [ $this, 'ajax_get_slots' ] );
         add_action( 'wp_ajax_bookease_submit',         [ $this, 'ajax_submit' ] );
         add_action( 'wp_ajax_nopriv_bookease_submit',  [ $this, 'ajax_submit' ] );
+        add_action( 'wp_ajax_bookease_reschedule',         [ $this, 'ajax_reschedule' ] );
+        add_action( 'wp_ajax_nopriv_bookease_reschedule',  [ $this, 'ajax_reschedule' ] );
 
         // Token-based actions (cancel / reschedule).
         add_action( 'template_redirect', [ $this, 'handle_token_actions' ] );
@@ -36,6 +38,8 @@ class BookingForm {
 
     public function render_shortcode( array $atts ): string {
         $atts = shortcode_atts( [], $atts, 'bookease_form' );
+        wp_enqueue_style( 'bookease-frontend' );
+        wp_enqueue_script( 'bookease-frontend' );
         ob_start();
         include BOOKEASE_PATH . 'templates/frontend/booking-form.php';
         return ob_get_clean();
@@ -44,20 +48,14 @@ class BookingForm {
     // ── Asset enqueueing ──────────────────────────────────────────────────────
 
     public function enqueue_assets(): void {
-        // Only load on pages that have our shortcode.
-        global $post;
-        if ( ! is_a( $post, 'WP_Post' ) || ! has_shortcode( $post->post_content, 'bookease_form' ) ) {
-            return;
-        }
-
-        wp_enqueue_style(
+        wp_register_style(
             'bookease-frontend',
             BOOKEASE_ASSETS_URL . 'css/frontend.css',
             [],
             BOOKEASE_VERSION
         );
 
-        wp_enqueue_script(
+        wp_register_script(
             'bookease-frontend',
             BOOKEASE_ASSETS_URL . 'js/frontend.js',
             [ 'jquery' ],
@@ -118,6 +116,31 @@ class BookingForm {
         wp_send_json_success( [
             'message'     => __( 'Your booking has been submitted! Check your email for confirmation.', 'bookease' ),
             'booking_ref' => $result->booking_ref,
+        ] );
+    }
+
+    // ── AJAX: reschedule booking ──────────────────────────────────────────────
+
+    public function ajax_reschedule(): void {
+        check_ajax_referer( 'bookease_frontend', 'nonce' );
+
+        $token     = sanitize_text_field( wp_unslash( $_POST['token'] ?? '' ) );
+        $new_date  = sanitize_text_field( wp_unslash( $_POST['new_date'] ?? '' ) );
+        $new_start = sanitize_text_field( wp_unslash( $_POST['new_start'] ?? '' ) );
+        $new_end   = sanitize_text_field( wp_unslash( $_POST['new_end'] ?? '' ) );
+
+        if ( ! $token || ! $new_date || ! $new_start || ! $new_end ) {
+            wp_send_json_error( [ 'message' => __( 'Missing required reschedule parameters.', 'bookease' ) ] );
+        }
+
+        $result = $this->booking_svc->reschedule_by_token( $token, $new_date, $new_start, $new_end );
+
+        if ( is_wp_error( $result ) ) {
+            wp_send_json_error( [ 'message' => $result->get_error_message() ] );
+        }
+
+        wp_send_json_success( [
+            'message' => __( 'Your booking has been rescheduled successfully.', 'bookease' ),
         ] );
     }
 

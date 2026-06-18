@@ -16,6 +16,11 @@ $token = sanitize_text_field( wp_unslash( $_GET['token'] ?? '' ) );
 </head>
 <body class="bookease-standalone">
 <div class="bookease-wrap" style="max-width:520px;margin:4rem auto;padding:2rem;">
+  <noscript>
+    <div class="be-notice be-notice--error" style="display: block; margin-bottom: 1.5rem; padding: 1rem; background-color: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; border-radius: 0.375rem; font-size: 0.875rem;">
+      <?php esc_html_e( 'JavaScript is required to reschedule appointments. Please enable JavaScript in your browser settings to continue.', 'bookease' ); ?>
+    </div>
+  </noscript>
   <h1><?php esc_html_e( 'Reschedule Your Booking', 'bookease' ); ?></h1>
   <p><?php esc_html_e( 'Select a new date and time slot below.', 'bookease' ); ?></p>
 
@@ -50,6 +55,13 @@ wp_localize_script( 'bookease-frontend', 'bookease', [
     'nonce'        => wp_create_nonce( 'bookease_frontend' ),
     'slotDuration' => isset( $this->repo ) ? (int) $this->repo->get_setting( 'slot_duration', 60 ) : 60,
     'mode'         => 'reschedule',
+    'i18n'         => [
+        'selectDate'    => __( 'Select a date first', 'bookease' ),
+        'noSlots'       => __( 'No available slots for this date.', 'bookease' ),
+        'loading'       => __( 'Loading…', 'bookease' ),
+        'submitting'    => __( 'Submitting…', 'bookease' ),
+        'error'         => __( 'Something went wrong. Please try again.', 'bookease' ),
+    ],
 ] );
 wp_footer();
 ?>

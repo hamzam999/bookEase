@@ -277,18 +277,19 @@ class Dashboard {
 
     public function ajax_list_bookings(): void {
         $this->verify_admin_nonce();
+        $per_page = isset( $_POST['per_page'] ) ? max( 1, (int) $_POST['per_page'] ) : 10;
         $result = $this->repo->list( [
             'search'    => sanitize_text_field( wp_unslash( $_POST['search']    ?? '' ) ),
             'status'    => sanitize_text_field( wp_unslash( $_POST['status']    ?? '' ) ),
             'date_from' => sanitize_text_field( wp_unslash( $_POST['date_from'] ?? '' ) ),
             'date_to'   => sanitize_text_field( wp_unslash( $_POST['date_to']   ?? '' ) ),
-            'per_page'  => 20,
+            'per_page'  => $per_page,
             'page'      => max( 1, (int) ( $_POST['page'] ?? 1 ) ),
         ] );
         wp_send_json_success( [
             'bookings'    => array_map( fn( $b ) => $b->to_array(), $result['items'] ),
             'total'       => $result['total'],
-            'total_pages' => (int) ceil( $result['total'] / 20 ),
+            'total_pages' => (int) ceil( $result['total'] / $per_page ),
         ] );
     }
 

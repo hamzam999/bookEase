@@ -26,29 +26,42 @@
     let page      = 1;
     let totalPages = 1;
 
+    function getPerPage() {
+      const val = $( '#be-per-page' ).val();
+      if ( val === 'custom' ) {
+        const customVal = parseInt( $( '#be-per-page-custom' ).val(), 10 );
+        return ( ! isNaN( customVal ) && customVal > 0 ) ? customVal : 10;
+      }
+      return parseInt( val, 10 ) || 10;
+    }
+
     function load() {
       const search   = $( '#be-search' ).val();
       const dateFrom = $( '#be-date-from' ).val();
       const dateTo   = $( '#be-date-to' ).val();
       const status   = $( '#be-status-filter' ).val();
+      const perPage  = getPerPage();
 
-      $( '#be-bookings-body' ).html( '<tr class="be-loading-row"><td colspan="6">' + bookease_admin.i18n.loading + '</td></tr>' );
+      $( '#be-bookings-body' ).html( '<tr class="be-loading-row"><td colspan="7">' + bookease_admin.i18n.loading + '</td></tr>' );
 
-      API.post( 'bookease_list_bookings', { search, date_from: dateFrom, date_to: dateTo, status, page }, data => {
-        renderTable( data.bookings );
+      API.post( 'bookease_list_bookings', { search, date_from: dateFrom, date_to: dateTo, status, page, per_page: perPage }, data => {
+        renderTable( data.bookings, perPage );
         totalPages = data.total_pages;
         renderPagination( page, totalPages );
       } );
     }
 
-    function renderTable( bookings ) {
+    function renderTable( bookings, perPage ) {
       if ( ! bookings.length ) {
-        $( '#be-bookings-body' ).html( '<tr><td colspan="6" style="text-align:center;color:#6b7280;padding:2rem;">No bookings found.</td></tr>' );
+        $( '#be-bookings-body' ).html( '<tr><td colspan="7" style="text-align:center;color:#6b7280;padding:2rem;">No bookings found.</td></tr>' );
         return;
       }
 
-      const rows = bookings.map( b => `
+      const startSNo = ( page - 1 ) * perPage + 1;
+
+      const rows = bookings.map( ( b, index ) => `
         <tr data-id="${b.id}">
+          <td style="font-weight:600;color:#374151;">${startSNo + index}</td>
           <td><code>${esc(b.booking_ref)}</code></td>
           <td>
             <div style="font-weight:600;">${esc(b.customer_name)}</div>
@@ -87,6 +100,23 @@
     // Filter.
     $( '#be-apply-filters' ).on( 'click', () => { page = 1; load(); } );
     $( '#be-search' ).on( 'keypress', e => { if ( e.which===13 ) { page=1; load(); } } );
+
+    // Per-page change handlers.
+    $( '#be-per-page' ).on( 'change', function() {
+      const val = $( this ).val();
+      if ( val === 'custom' ) {
+        $( '#be-per-page-custom' ).show().focus();
+      } else {
+        $( '#be-per-page-custom' ).hide();
+        page = 1;
+        load();
+      }
+    } );
+
+    $( '#be-per-page-custom' ).on( 'input change', function() {
+      page = 1;
+      load();
+    } );
 
     // Table actions.
     $( '#be-bookings-table' ).on( 'click', '[data-action]', function() {
@@ -434,11 +464,11 @@
       const b = data.booking;
       $( '#be-view-content' ).html(`
         <table style="width:100%;border-collapse:collapse">
-          ${row('Ref', b.booking_ref)} ${row('Name', b.customer_name)}
-          ${row('Email', b.customer_email)} ${row('Phone', b.customer_phone)}
-          ${row('Date', b.service_date)} ${row('Time', b.start_time.substr(0,5)+' – '+b.end_time.substr(0,5))}
-          ${row('Status','<span class="be-badge be-badge--'+b.status+'">'+b.status+'</span>')}
-          ${b.notes ? row('Notes', b.notes) : ''}
+          ${row('Ref', esc(b.booking_ref))} ${row('Name', esc(b.customer_name))}
+          ${row('Email', esc(b.customer_email))} ${row('Phone', esc(b.customer_phone))}
+          ${row('Date', esc(b.service_date))} ${row('Time', esc(b.start_time.substr(0,5))+' – '+esc(b.end_time.substr(0,5)))}
+          ${row('Status','<span class="be-badge be-badge--'+esc(b.status)+'">'+esc(b.status)+'</span>')}
+          ${b.notes ? row('Notes', esc(b.notes)) : ''}
         </table>`);
       if ( b.status === 'pending' ) {
         $( '#be-view-modal [data-action="approved"], #be-view-modal [data-action="rejected"]' ).show();

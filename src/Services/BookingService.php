@@ -32,24 +32,38 @@ class BookingService {
             return $validation;
         }
 
-        // Double-booking guard.
-        if ( ! $this->availability->is_slot_available( $data['service_date'], $data['start_time'], $data['end_time'] ) ) {
+        global $wpdb;
+        $lock_name = md5( "bookease_lock_{$data['service_date']}_{$data['start_time']}_{$data['end_time']}" );
+        $lock_acquired = $wpdb->get_var( $wpdb->prepare( "SELECT GET_LOCK(%s, 10)", $lock_name ) );
+        if ( ! $lock_acquired ) {
             return new \WP_Error(
-                'slot_unavailable',
-                __( 'The selected time slot is no longer available. Please choose another.', 'bookease' )
+                'lock_failed',
+                __( 'Could not acquire booking lock. Please try again.', 'bookease' )
             );
         }
 
-        $insert_data = array_merge( $data, [
-            'booking_ref'      => $this->generate_ref(),
-            'status'           => apply_filters( 'bookease_default_status', Booking::STATUS_PENDING ),
-            'cancel_token'     => wp_generate_password( 32, false ),
-            'reschedule_token' => wp_generate_password( 32, false ),
-        ] );
+        try {
+            // Double-booking guard.
+            if ( ! $this->availability->is_slot_available( $data['service_date'], $data['start_time'], $data['end_time'] ) ) {
+                return new \WP_Error(
+                    'slot_unavailable',
+                    __( 'The selected time slot is no longer available. Please choose another.', 'bookease' )
+                );
+            }
 
-        $id = $this->repo->insert( $insert_data );
-        if ( is_wp_error( $id ) ) {
-            return $id;
+            $insert_data = array_merge( $data, [
+                'booking_ref'      => $this->generate_ref(),
+                'status'           => apply_filters( 'bookease_default_status', Booking::STATUS_PENDING ),
+                'cancel_token'     => wp_generate_password( 32, false ),
+                'reschedule_token' => wp_generate_password( 32, false ),
+            ] );
+
+            $id = $this->repo->insert( $insert_data );
+            if ( is_wp_error( $id ) ) {
+                return $id;
+            }
+        } finally {
+            $wpdb->query( $wpdb->prepare( "SELECT RELEASE_LOCK(%s)", $lock_name ) );
         }
 
         $booking = $this->repo->find( $id );
@@ -125,19 +139,33 @@ class BookingService {
             return new \WP_Error( 'invalid_token', __( 'Invalid or expired reschedule link.', 'bookease' ) );
         }
 
-        if ( ! $this->availability->is_slot_available( $new_date, $new_start, $new_end, $booking->id ) ) {
-            return new \WP_Error( 'slot_unavailable', __( 'That slot is no longer available.', 'bookease' ) );
+        global $wpdb;
+        $lock_name = md5( "bookease_lock_{$new_date}_{$new_start}_{$new_end}" );
+        $lock_acquired = $wpdb->get_var( $wpdb->prepare( "SELECT GET_LOCK(%s, 10)", $lock_name ) );
+        if ( ! $lock_acquired ) {
+            return new \WP_Error(
+                'lock_failed',
+                __( 'Could not acquire booking lock. Please try again.', 'bookease' )
+            );
         }
 
-        $result = $this->repo->update( $booking->id, [
-            'service_date' => $new_date,
-            'start_time'   => $new_start,
-            'end_time'     => $new_end,
-            'status'       => Booking::STATUS_PENDING,
-        ] );
+        try {
+            if ( ! $this->availability->is_slot_available( $new_date, $new_start, $new_end, $booking->id ) ) {
+                return new \WP_Error( 'slot_unavailable', __( 'That slot is no longer available.', 'bookease' ) );
+            }
 
-        if ( is_wp_error( $result ) ) {
-            return $result;
+            $result = $this->repo->update( $booking->id, [
+                'service_date' => $new_date,
+                'start_time'   => $new_start,
+                'end_time'     => $new_end,
+                'status'       => Booking::STATUS_PENDING,
+            ] );
+
+            if ( is_wp_error( $result ) ) {
+                return $result;
+            }
+        } finally {
+            $wpdb->query( $wpdb->prepare( "SELECT RELEASE_LOCK(%s)", $lock_name ) );
         }
 
         $updated = $this->repo->find( $booking->id );
@@ -206,6 +234,9 @@ class BookingService {
         if ( empty( $data['customer_name'] ) ) {
             return new \WP_Error( 'missing_name', __( 'Name is required.', 'bookease' ) );
         }
+        if ( mb_strlen( $data['customer_name'] ) > 150 ) {
+            return new \WP_Error( 'name_too_long', __( 'Name cannot be longer than 150 characters.', 'bookease' ) );
+        }
         if ( empty( $data['customer_email'] ) || ! is_email( $data['customer_email'] ) ) {
             return new \WP_Error( 'invalid_email', __( 'A valid email address is required.', 'bookease' ) );
         }
@@ -219,6 +250,6 @@ class BookingService {
     }
 
     private function generate_ref(): string {
-        return strtoupper( 'BK-' . substr( uniqid( '', true ), -8 ) );
+        return strtoupper( 'BK-' . wp_generate_password( 10, false ) );
     }
 }
